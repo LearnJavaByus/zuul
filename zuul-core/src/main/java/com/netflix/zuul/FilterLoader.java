@@ -115,12 +115,14 @@ public class FilterLoader
     {
         try {
             String sName = file.getAbsolutePath();
+            // 如果文件在上次加载后发生了变化，重新编译加载
             if (filterClassLastModified.get(sName) != null && (file.lastModified() != filterClassLastModified.get(sName))) {
                 LOG.debug("reloading filter " + sName);
                 filterRegistry.remove(sName);
             }
             ZuulFilter filter = filterRegistry.get(sName);
             if (filter == null) {
+                // 编译、加载文件
                 Class clazz = compiler.compile(file);
                 if (!Modifier.isAbstract(clazz.getModifiers())) {
                     filter = filterFactory.newInstance(clazz);
@@ -139,6 +141,7 @@ public class FilterLoader
 
     void putFilter(String sName, ZuulFilter filter, long lastModified)
     {
+        // 为了下次Request使用filter，清空filter.filterType()类型的List<Filter>缓存，下次Request重新构建
         List<ZuulFilter> list = hashFiltersByType.get(filter.filterType());
         if (list != null) {
             hashFiltersByType.remove(filter.filterType()); //rebuild this list
@@ -146,8 +149,9 @@ public class FilterLoader
 
         String nameAndType = filter.filterType() + ":" + filter.filterName();
         filtersByNameAndType.put(nameAndType, filter);
-
+        // filterRegistry 管理所有的filter，
         filterRegistry.put(sName, filter);
+        // 记录filter文件更新时间。
         filterClassLastModified.put(sName, lastModified);
     }
 

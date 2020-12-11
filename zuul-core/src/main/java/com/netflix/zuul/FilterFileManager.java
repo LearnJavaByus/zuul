@@ -42,6 +42,8 @@ import java.util.concurrent.TimeUnit;
  * Polling interval and directories are specified in the initialization of the class, and a poller will check
  * for changes and additions.
  *
+ * 用于管理Filter存放目录，并定期扫描目录的变化。
+ *
  * @author Mikey Cohen
  *         Date: 12/7/11
  *         Time: 12:09 PM
